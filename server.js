@@ -2,14 +2,6 @@ import { createRequestHandler } from "@remix-run/express";
 import express from "express";
 import { Readable } from "stream";
 
-// Create a stream from a text string
-function textToStream(text) {
-  const stream = new Readable();
-  stream.push(text);
-  stream.push(null); // No more data
-  return stream;
-}
-
 const viteDevServer =
   process.env.NODE_ENV === "production"
     ? null
@@ -28,11 +20,34 @@ const build = viteDevServer
   ? () => viteDevServer.ssrLoadModule("virtual:remix/server-build")
   : await import("./build/server/index.js");
 
-// Define a route to stream text
-
-app.get("/stream-text", (req, res) => {
+app.get("/test", (req, res) => {
   const text = "This is a stream of text data. ";
-  const stream = textToStream(text.repeat(100000)); // Repeat to simulate large text
+  res.send(text.repeat(100000));
+});
+
+// Define a route to stream text
+app.get("/stream-text", (req, res) => {
+  // Create a stream from a text string with a delay
+  function textToSlowStream(text, delay = 1000) {
+    const stream = new Readable({
+      read() {},
+    });
+
+    const chunks = text.match(/.{1,20}/g); // Split text into smaller chunks
+
+    chunks.forEach((chunk, index) => {
+      setTimeout(() => {
+        stream.push(`${index}.\t${chunk}`);
+        if (index === chunks.length - 1) {
+          stream.push(null); // End the stream
+        }
+      }, delay * index);
+    });
+
+    return stream;
+  }
+  const text = "This is a stream of text data. ";
+  const stream = textToSlowStream(text.repeat(10), 300); // Repeat to simulate large text and delay each
 
   // Set headers
   res.setHeader("Content-Type", "text/plain");
