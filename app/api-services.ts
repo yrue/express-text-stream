@@ -18,7 +18,7 @@ export async function fetchStream(callback): Promise<void> {
       done = doneReading;
 
       const chunk = decoder.decode(value, { stream: true });
-      callback(prev => prev + chunk)
+      callback(chunk)
     }
 
     console.log('Stream ended');

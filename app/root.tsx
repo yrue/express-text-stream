@@ -5,13 +5,20 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import { fetchStream} from "./api-services";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function App() {
+  const initialLoadRef = useRef(false);
   const [data, setData] = useState('');
+
   useEffect(() => {
+    if (initialLoadRef.current) return
+
+    initialLoadRef.current = true;
     (async function () {
-      await fetchStream(setData)
+      await fetchStream((chunk: string): void => {
+        setData(prev => prev + chunk)
+      })
     })()
   }, [])
   return (
