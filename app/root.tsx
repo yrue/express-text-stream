@@ -5,11 +5,19 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import { postData } from "./api-services";
-import {  useState } from "react";
+import {  useState, useRef } from "react";
 
 export default function App() {
   const [data, setData] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setData('')
+    await postData({ prompt: inputRef.current.value }, (chunk: string): void => {
+      setData(prev => prev + chunk)
+    })
+  }
   return (
     <html lang="en">
       <head>
@@ -19,13 +27,12 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <>
-          <button onClick={async () => {
-            await postData({ prompt: 'whatever prompt' }, (chunk: string): void => {
-              setData(prev => prev + chunk)
-            })
-          }}>Submit</button>
-        </>
+        <form onSubmit={handleSubmit}>
+          <label>Prompts:
+            <input ref={inputRef} defaultValue={''} type="text"/>
+          </label>
+          <button type="submit">Submit</button>
+        </form>
         <div id="response">
           <div>{data}</div>
         </div>
