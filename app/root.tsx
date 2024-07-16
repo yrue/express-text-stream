@@ -4,7 +4,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import { postData } from "./api-services";
+import { submitPrompt } from "./api-services";
 import {  useState, useRef } from "react";
 
 export default function App() {
@@ -14,7 +14,7 @@ export default function App() {
   const handleSubmit = async (event) => {
     event.preventDefault()
     setData('')
-    await postData({ prompt: inputRef.current.value }, (chunk: string): void => {
+    await submitPrompt({ prompt: inputRef.current.value }, (chunk: string): void => {
       setData(prev => prev + chunk)
     })
   }

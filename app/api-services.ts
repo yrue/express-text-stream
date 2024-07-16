@@ -4,7 +4,7 @@ const apiUrl = "http://localhost:3000/stream-text";
 interface PostData {
   prompt: string;
 }
-export async function postData(
+export async function submitPrompt(
   data: PostData,
   callback: { (chunk: string): void; (arg0: string): void }
 ): Promise<any> {
