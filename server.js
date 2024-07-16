@@ -1,6 +1,7 @@
 import { createRequestHandler } from "@remix-run/express";
 import express from "express";
 import { Readable } from "stream";
+import bodyParser from "body-parser"; // parse request body
 
 const viteDevServer =
   process.env.NODE_ENV === "production"
@@ -20,13 +21,16 @@ const build = viteDevServer
   ? () => viteDevServer.ssrLoadModule("virtual:remix/server-build")
   : await import("./build/server/index.js");
 
-app.get("/test", (req, res) => {
-  const text = "This is a stream of text data. ";
-  res.send(text.repeat(100000));
-});
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// parse application/json
+app.use(bodyParser.json());
 
 // Define a route to stream text
-app.get("/stream-text", (req, res) => {
+app.post("/stream-text", (req, res) => {
+  console.log("Received data:", req.body); // TODO: integrate with LLM
+
   // Create a stream from a text string with a delay
   function textToSlowStream(text, delay = 1000) {
     const stream = new Readable({

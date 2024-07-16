@@ -4,23 +4,12 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import { fetchStream} from "./api-services";
-import { useEffect, useRef, useState } from "react";
+import { postData } from "./api-services";
+import {  useState } from "react";
 
 export default function App() {
-  const initialLoadRef = useRef(false);
   const [data, setData] = useState('');
 
-  useEffect(() => {
-    if (initialLoadRef.current) return
-
-    initialLoadRef.current = true;
-    (async function () {
-      await fetchStream((chunk: string): void => {
-        setData(prev => prev + chunk)
-      })
-    })()
-  }, [])
   return (
     <html lang="en">
       <head>
@@ -30,6 +19,13 @@ export default function App() {
         <Links />
       </head>
       <body>
+        <>
+          <button onClick={async () => {
+            await postData({ prompt: 'whatever prompt' }, (chunk: string): void => {
+              setData(prev => prev + chunk)
+            })
+          }}>Submit</button>
+        </>
         <div id="response">
           <div>{data}</div>
         </div>
